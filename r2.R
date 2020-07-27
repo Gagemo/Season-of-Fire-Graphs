@@ -1,0 +1,294 @@
+### clear everything ###
+rm(list=ls(all=TRUE)) 
+cat("\014") 
+
+list.of.packages <- c("reshape2", "gridExtra", "tidyverse", "ggplot2")
+new.packages <- list.of.packages[!(list.of.packages %in% 
+                                     installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+library(reshape2)
+library(gridExtra)
+library(tidyverse)
+library(ggplot2)
+
+##################################### Monthly Normals ##############################################################################
+
+rain = read.csv("GNV_rain.csv")
+rain$month <- factor(rain$Month, levels = c("Jan", "Feb","Mar","Apr",
+                                            "May", "Jun", "Jul", "Aug", 
+                                          "Sep", "Oct", "Nov", "Dec"))
+
+cols <- c("Thunder Days"="yellow2","Min Temp"="blue3","Max Temp"="Red3")
+coolGvile2018 = 
+  ggplot() +
+  geom_bar(rain, mapping = aes(x = month, y = MLY.PRCP.NORMAL.mm * 30 / 400), color = "blue", 
+           fill = "blue", alpha = 0.2, stat = "identity", size=1) +
+  geom_bar(rain, mapping = aes(x = month, y = X2018.MLY.PRCP.mm * 30 / 400), color = "dodgerblue", 
+           fill = "dodgerblue", alpha = 0.2, stat = "identity", width = 1, size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, group = 1), color = "yellow2", size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MIN.C, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MIN.C, group = 1), color = "blue3", size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MAX.C, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MAX.C, group = 1), color = "Red3", size = 1) +
+  geom_segment(aes(x = "Jan", y = 10, xend = "May", yend = 10), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Jan", y = 10, xend = "May", yend = 10, color = "orchid2"), size = 2) +
+  geom_segment(aes(x = "Apr", y = 10, xend = "Jun", yend = 10), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Apr", y = 10, xend = "Jun", yend = 10, color = "Purple"), size = 2) +
+  geom_segment(aes(x = "Jun", y = 10, xend = "Oct", yend = 10), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Jun", y = 10, xend = "Oct", yend = 10, color = "dodgerblue"), size = 2) +
+  geom_segment(aes(x = "Oct", y = 10, xend = "Dec", yend = 10), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Oct", y = 10, xend = "Dec", yend = 10, color = "orchid2"), size = 2) +
+  geom_segment(aes(x = "Apr", y = 15, xend = "Oct", yend = 15), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Apr", y = 15, xend = "Oct", yend = 15, color = "yellow2"), size = 2)  +
+  geom_point(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, fill = "yellow1"), shape = 21,
+             color = "black", size = 3) +
+  geom_point(rain, mapping = aes(x = month, y = TEMP.MIN.C, fill = "blue1"), shape = 22,
+             color = "black", size = 3) +
+  geom_point(rain, mapping = aes(x = month, y = TEMP.MAX.C, fill = "red1"), shape = 23,
+             color = "black", size = 3) +
+  geom_vline(aes(xintercept = 3.7), color = "red2") +
+  geom_vline(aes(xintercept = 3.71), color = "red2") +
+  geom_vline(aes(xintercept = 5.8), color = "red2") +
+  geom_vline(aes(xintercept = 5.81), color = "red2") +
+  geom_vline(aes(xintercept = 8.8), color = "red2") +
+  geom_vline(aes(xintercept = 8.81), color = "red2") +
+  geom_vline(aes(xintercept = 4.1), color = "blue2") +
+  geom_vline(aes(xintercept = 4.11), color = "blue2") +
+  scale_shape_manual(values = c(21, 22, 23)) +
+  scale_fill_manual(name = "Monthly Normals",
+                    values = c("yellow1" = "yellow1", "blue1" = "blue1", "red1" = "red1"),
+                    labels = c("yellow1" = "Thunder Days", "blue1" = "Min Temp", "red1" = "Max Temp")) +
+  scale_colour_manual(values = c("darkorange1" = "darkorange1", "springgreen3" = "springgreen3", 
+                                 "orchid2" = "orchid2", "dodgerblue" = "dodgerblue", "Purple" = "Purple",
+                                 "yellow2" = "yellow2","Red3" = "Red3","blue3" = "blue3"), name = "Terminology", 
+                      labels = c("darkorange1" = "Dormant", "springgreen3" = "Growing", "orchid2" = "Dry", 
+                                 "dodgerblue" = "Wet", "yellow2" = "Lightning", "Purple" = "Transition", 
+                                 "Red3" = "Max Temp", "blue3" = "Min Temp")) + 
+  scale_y_continuous(name = expression(bold("Temperature ("~degree~"C)")), 
+                     sec.axis = sec_axis(~ . * 400 / 30 , name = "Precipitation (mm)"), limits = c(0, 35)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(color = "black", size = 15, face = "bold"),
+        axis.text.y = element_text(color = "black", size = 15, face = "bold"),  
+        axis.title.x = element_text(color = "black", size = 15, face = "bold"),
+        axis.title.y = element_text(color = "black", size = 15, face = "bold"),
+        title = element_text(color = "black", size = 15, face = "bold"),
+        legend.text = element_text(color = "black", size = 15, face = "bold"),
+        legend.title=element_text(color = "black", size=15),
+        plot.title = element_text(hjust = 0.5),
+        legend.key.height = unit(1, "cm"),
+        legend.key.width = unit(1, "cm")) +
+  xlab("") +
+  ylab("Temperature C") 
+coolGvile2018
+
+ggsave("coolGvile2018.png", height = 9, width = 12)
+
+
+coolGvile2018_DG = 
+  ggplot() +
+  geom_bar(rain, mapping = aes(x = month, y = MLY.PRCP.NORMAL), color = "blue", 
+           fill = "blue", alpha = 0.2, stat = "identity", size=1) +
+  geom_bar(rain, mapping = aes(x = month, y = X2018.MLY.PRCP), color = "dodgerblue", 
+           fill = "dodgerblue", alpha = 0.2, stat = "identity", width = 1, size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, group = 1), color = "yellow2", size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MIN.C, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MIN.C, group = 1), color = "blue3", size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MAX.C, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MAX.C, group = 1), color = "Red3", size = 1) +
+  geom_segment(aes(x = "Jan", y = 20, xend = "Feb", yend = 20), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Jan", y = 20, xend = "Feb", yend = 20, color = "darkorange1"), size = 2) +
+  geom_segment(aes(x = "Feb", y = 20, xend = "Oct", yend = 20), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Feb", y = 20, xend = "Oct", yend = 20, color = "springgreen3"), size = 2) +
+  geom_segment(aes(x = "Oct", y = 20, xend = "Dec", yend = 20), color = "grey17", size = 2.8) +  
+  geom_segment(aes(x = "Oct", y = 20, xend = "Dec", yend = 20, color = "darkorange1"), size = 2) +
+  geom_segment(aes(x = "Jan", y = 10, xend = "May", yend = 10), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Jan", y = 10, xend = "May", yend = 10, color = "orchid2"), size = 2) +
+  geom_segment(aes(x = "Apr", y = 10, xend = "Jun", yend = 10), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Apr", y = 10, xend = "Jun", yend = 10, color = "Purple"), size = 2) +
+  geom_segment(aes(x = "Jun", y = 10, xend = "Oct", yend = 10), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Jun", y = 10, xend = "Oct", yend = 10, color = "dodgerblue"), size = 2) +
+  geom_segment(aes(x = "Oct", y = 10, xend = "Dec", yend = 10), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Oct", y = 10, xend = "Dec", yend = 10, color = "orchid2"), size = 2) +
+  geom_segment(aes(x = "Apr", y = 15, xend = "Oct", yend = 15), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Apr", y = 15, xend = "Oct", yend = 15, color = "yellow2"), size = 2)  +
+  geom_point(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, fill = "yellow1"), shape = 21,
+             color = "black", size = 3) +
+  geom_point(rain, mapping = aes(x = month, y = TEMP.MIN.C, fill = "blue1"), shape = 22,
+             color = "black", size = 3) +
+  geom_point(rain, mapping = aes(x = month, y = TEMP.MAX.C, fill = "red1"), shape = 23,
+             color = "black", size = 3) +
+  geom_vline(aes(xintercept = 3.7), color = "red2") +
+  geom_vline(aes(xintercept = 3.71), color = "red2") +
+  geom_vline(aes(xintercept = 5.8), color = "red2") +
+  geom_vline(aes(xintercept = 5.81), color = "red2") +
+  geom_vline(aes(xintercept = 8.8), color = "red2") +
+  geom_vline(aes(xintercept = 8.81), color = "red2") +
+  geom_vline(aes(xintercept = 4.1), color = "blue2") +
+  geom_vline(aes(xintercept = 4.11), color = "blue2") +
+  scale_shape_manual(values = c(21, 22, 23)) +
+  scale_fill_manual(name = "Monthly Normals",
+                    values = c("yellow1" = "yellow1", "blue1" = "blue1", "red1" = "red1"),
+                    labels = c("yellow1" = "Thunder Days", "blue1" = "Min Temp", "red1" = "Max Temp")) +
+  scale_colour_manual(values = c("darkorange1" = "darkorange1", "springgreen3" = "springgreen3", 
+                                 "orchid2" = "orchid2", "dodgerblue" = "dodgerblue", "Purple" = "Purple",
+                                 "yellow2" = "yellow2","Red3" = "Red3","blue3" = "blue3"), name = "Terminology", 
+                      labels = c("darkorange1" = "Dormant", "springgreen3" = "Growing", "orchid2" = "Dry", 
+                                 "dodgerblue" = "Wet", "yellow2" = "Lightning", "Purple" = "Transition", 
+                                 "Red3" = "Max Temp", "blue3" = "Min Temp")) + 
+  scale_y_continuous(name = expression(bold("Temperature ("~degree~"C)")), 
+                     sec.axis = sec_axis(~ . * 400 / 30 , name = "Precipitation (mm)"), limits = c(0, 35)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(color = "black", size = 15, face = "bold"),
+        axis.text.y = element_text(color = "black", size = 15, face = "bold"),  
+        axis.title.x = element_text(color = "black", size = 15, face = "bold"),
+        axis.title.y = element_text(color = "black", size = 15, face = "bold"),
+        title = element_text(color = "black", size = 15, face = "bold"),
+        legend.text = element_text(color = "black", size = 15, face = "bold"),
+        legend.title=element_text(color = "black", size=15),
+        plot.title = element_text(hjust = 0.5),
+        legend.key.height = unit(1, "cm"),
+        legend.key.width = unit(1, "cm")) +
+  xlab("") +
+  ylab("Temperature C°") 
+coolGvile2018_DG
+
+ggsave("coolGvile2018_DG.png", height = 9, width = 12)
+
+coolGvile2017_DG = 
+  ggplot() +
+  geom_bar(rain, mapping = aes(x = month, y = MLY.PRCP.NORMAL.mm * 30 / 400), color = "blue", 
+           fill = "blue", alpha = 0.2, stat = "identity", size=1) +
+  geom_bar(rain, mapping = aes(x = month, y = X2017.MLY.PRCP.mm * 30 / 400), color = "dodgerblue", 
+           fill = "dodgerblue", alpha = 0.2, stat = "identity", width = 1, size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, group = 1), color = "yellow2", size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MIN.C, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MIN.C, group = 1), color = "blue3", size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MAX.C, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MAX.C, group = 1), color = "Red3", size = 1) +
+  geom_segment(aes(x = "Jan", y = 20, xend = "Feb", yend = 20), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Jan", y = 20, xend = "Feb", yend = 20, color = "darkorange1"), size = 2) +
+  geom_segment(aes(x = "Feb", y = 20, xend = "Oct", yend = 20), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Feb", y = 20, xend = "Oct", yend = 20, color = "springgreen3"), size = 2) +
+  geom_segment(aes(x = "Oct", y = 20, xend = "Dec", yend = 20), color = "grey17", size = 2.8) +  
+  geom_segment(aes(x = "Oct", y = 20, xend = "Dec", yend = 20, color = "darkorange1"), size = 2) +
+  geom_segment(aes(x = "Jan", y = 10, xend = "May", yend = 10), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Jan", y = 10, xend = "May", yend = 10, color = "orchid2"), size = 2) +
+  geom_segment(aes(x = "Apr", y = 10, xend = "Jun", yend = 10), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Apr", y = 10, xend = "Jun", yend = 10, color = "Purple"), size = 2) +
+  geom_segment(aes(x = "Jun", y = 10, xend = "Oct", yend = 10), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Jun", y = 10, xend = "Oct", yend = 10, color = "dodgerblue"), size = 2) +
+  geom_segment(aes(x = "Oct", y = 10, xend = "Dec", yend = 10), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Oct", y = 10, xend = "Dec", yend = 10, color = "orchid2"), size = 2) +
+  geom_segment(aes(x = "Apr", y = 15, xend = "Oct", yend = 15), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Apr", y = 15, xend = "Oct", yend = 15, color = "yellow2"), size = 2)  +
+  geom_point(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, fill = "yellow1"), shape = 21,
+             color = "black", size = 3) +
+  geom_point(rain, mapping = aes(x = month, y = TEMP.MIN.C, fill = "blue1"), shape = 22,
+             color = "black", size = 3) +
+  geom_point(rain, mapping = aes(x = month, y = TEMP.MAX.C, fill = "red1"), shape = 23,
+             color = "black", size = 3) +
+  geom_vline(aes(xintercept = 3.7), color = "red2") +
+  geom_vline(aes(xintercept = 3.71), color = "red2") +
+  geom_vline(aes(xintercept = 5.8), color = "red2") +
+  geom_vline(aes(xintercept = 5.81), color = "red2") +
+  geom_vline(aes(xintercept = 8.8), color = "red2") +
+  geom_vline(aes(xintercept = 8.81), color = "red2") +
+  geom_vline(aes(xintercept = 6.), color = "blue2") +
+  geom_vline(aes(xintercept = 6.01), color = "blue2") +
+  scale_shape_manual(values = c(21, 22, 23)) +
+  scale_fill_manual(name = "Monthly Normals",
+                    values = c("yellow1" = "yellow1", "blue1" = "blue1", "red1" = "red1"),
+                    labels = c("yellow1" = "Thunder Days", "blue1" = "Min Temp", "red1" = "Max Temp")) +
+  scale_colour_manual(values = c("darkorange1" = "darkorange1", "springgreen3" = "springgreen3", 
+                                 "orchid2" = "orchid2", "dodgerblue" = "dodgerblue", "Purple" = "Purple",
+                                 "yellow2" = "yellow2","Red3" = "Red3","blue3" = "blue3"), name = "Terminology", 
+                      labels = c("darkorange1" = "Dormant", "springgreen3" = "Growing", "orchid2" = "Dry", 
+                                 "dodgerblue" = "Wet", "yellow2" = "Lightning", "Purple" = "Transition", 
+                                 "Red3" = "Max Temp", "blue3" = "Min Temp")) + 
+  scale_y_continuous(name = expression(bold("Temperature ("~degree~"C)")), 
+                     sec.axis = sec_axis(~ . * 400 / 30 , name = "Precipitation (mm)"), limits = c(0, 35)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(color = "black", size = 15, face = "bold"),
+        axis.text.y = element_text(color = "black", size = 15, face = "bold"),  
+        axis.title.x = element_text(color = "black", size = 15, face = "bold"),
+        axis.title.y = element_text(color = "black", size = 15, face = "bold"),
+        title = element_text(color = "black", size = 15, face = "bold"),
+        legend.text = element_text(color = "black", size = 15, face = "bold"),
+        legend.title=element_text(color = "black", size=15),
+        plot.title = element_text(hjust = 0.5),
+        legend.key.height = unit(1, "cm"),
+        legend.key.width = unit(1, "cm")) +
+  xlab("") +
+  ylab("Temperature C°") 
+coolGvile2017_DG
+
+ggsave("coolGvile2017_DG.png", height = 9, width = 12)
+
+coolGvile2017 = 
+  ggplot() +
+  geom_bar(rain, mapping = aes(x = month, y = MLY.PRCP.NORMAL.mm * 30 / 400), color = "blue", 
+           fill = "blue", alpha = 0.2, stat = "identity", size=1) +
+  geom_bar(rain, mapping = aes(x = month, y = X2017.MLY.PRCP.mm * 30 / 400), color = "dodgerblue", 
+           fill = "dodgerblue", alpha = 0.2, stat = "identity", width = 1, size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, group = 1), color = "yellow2", size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MIN.C, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MIN.C, group = 1), color = "blue3", size = 1) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MAX.C, group = 1), color = "grey17", size = 1.7) +
+  geom_line(rain, mapping = aes(x = month, y = TEMP.MAX.C, group = 1), color = "Red3", size = 1) +
+  geom_segment(aes(x = "Jan", y = 10, xend = "May", yend = 10), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Jan", y = 10, xend = "May", yend = 10, color = "orchid2"), size = 2) +
+  geom_segment(aes(x = "Apr", y = 10, xend = "Jun", yend = 10), color = "grey17", size = 2.8) +
+  geom_segment(aes(x = "Apr", y = 10, xend = "Jun", yend = 10, color = "Purple"), size = 2) +
+  geom_segment(aes(x = "Jun", y = 10, xend = "Oct", yend = 10), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Jun", y = 10, xend = "Oct", yend = 10, color = "dodgerblue"), size = 2) +
+  geom_segment(aes(x = "Oct", y = 10, xend = "Dec", yend = 10), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Oct", y = 10, xend = "Dec", yend = 10, color = "orchid2"), size = 2) +
+  geom_segment(aes(x = "Apr", y = 15, xend = "Oct", yend = 15), color = "grey17", size = 2.8) + 
+  geom_segment(aes(x = "Apr", y = 15, xend = "Oct", yend = 15, color = "yellow2"), size = 2)  +
+  geom_point(rain, mapping = aes(x = month, y = MLY.THDR.NORMAL, fill = "yellow1"), shape = 21,
+             color = "black", size = 3) +
+  geom_point(rain, mapping = aes(x = month, y = TEMP.MIN.C, fill = "blue1"), shape = 22,
+             color = "black", size = 3) +
+  geom_point(rain, mapping = aes(x = month, y = TEMP.MAX.C, fill = "red1"), shape = 23,
+             color = "black", size = 3) +
+  geom_vline(aes(xintercept = 3.7), color = "red2") +
+  geom_vline(aes(xintercept = 3.71), color = "red2") +
+  geom_vline(aes(xintercept = 5.8), color = "red2") +
+  geom_vline(aes(xintercept = 5.81), color = "red2") +
+  geom_vline(aes(xintercept = 8.8), color = "red2") +
+  geom_vline(aes(xintercept = 8.81), color = "red2") +
+  geom_vline(aes(xintercept = 6.0), color = "blue2") +
+  geom_vline(aes(xintercept = 6.01), color = "blue2") +
+  scale_shape_manual(values = c(21, 22, 23)) +
+  scale_fill_manual(name = "Monthly Normals",
+                    values = c("yellow1" = "yellow1", "blue1" = "blue1", "red1" = "red1"),
+                    labels = c("yellow1" = "Thunder Days", "blue1" = "Min Temp", "red1" = "Max Temp")) +
+  scale_colour_manual(values = c("darkorange1" = "darkorange1", "springgreen3" = "springgreen3", 
+                                 "orchid2" = "orchid2", "dodgerblue" = "dodgerblue", "Purple" = "Purple",
+                                 "yellow2" = "yellow2","Red3" = "Red3","blue3" = "blue3"), name = "Terminology", 
+                      labels = c("darkorange1" = "Dormant", "springgreen3" = "Growing", "orchid2" = "Dry", 
+                                 "dodgerblue" = "Wet", "yellow2" = "Lightning", "Purple" = "Transition", 
+                                 "Red3" = "Max Temp", "blue3" = "Min Temp")) + 
+  scale_y_continuous(name = expression(bold("Temperature ("~degree~"C)")), 
+                     sec.axis = sec_axis(~ . * 400 / 30 , name = "Precipitation (mm)"), limits = c(0, 35)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(color = "black", size = 15, face = "bold"),
+        axis.text.y = element_text(color = "black", size = 15, face = "bold"),  
+        axis.title.x = element_text(color = "black", size = 15, face = "bold"),
+        axis.title.y = element_text(color = "black", size = 15, face = "bold"),
+        title = element_text(color = "black", size = 15, face = "bold"),
+        legend.text = element_text(color = "black", size = 15, face = "bold"),
+        legend.title=element_text(color = "black", size=15),
+        plot.title = element_text(hjust = 0.5),
+        legend.key.height = unit(1, "cm"),
+        legend.key.width = unit(1, "cm")) +
+  xlab("") +
+  ylab("Temperature C") 
+coolGvile2017
+
+ggsave("coolGvile2017.png", height = 9, width = 12)
